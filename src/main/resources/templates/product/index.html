@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 <head>
@@ -66,13 +67,15 @@
                     <h5 class="card-title" th:text="${p.name}"></h5>
 
                     <!-- Description -->
-                    <p class="card-text text-muted small" th:text="${#strings.length(p.description) > 100 ? #strings.substring(p.description, 0, 100) + '...' : p.description}"></p>
+                    <p class="card-text text-muted small"
+                       th:text="${#strings.length(p.description) > 100 ? #strings.substring(p.description, 0, 100) + '...' : p.description}"></p>
 
                     <!-- Spacer -->
                     <div class="mt-auto">
                         <!-- Prix -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="h5 mb-0 text-success" th:text="'€' + ${#numbers.formatDecimal(p.price, 1, 2)}"></span>
+                            <span class="h5 mb-0 text-success"
+                                  th:text="'€' + ${#numbers.formatDecimal(p.price, 1, 2)}"></span>
                         </div>
 
                         <!-- Bouton -->
