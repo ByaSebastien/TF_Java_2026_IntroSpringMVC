@@ -52,6 +52,6 @@ public class Product {
     }
 
     public void takeId(){
-        this.id = nextId + 1;
+        this.id = nextId++;
     }
 }
