@@ -1,14 +1,77 @@
 <!DOCTYPE html>
-<html
-        lang="en"
-        xmlns:th="http://www.thymeleaf.org"
->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Product Details</title>
+    <title>Détail produit</title>
 </head>
 <body>
-    <h1>Product details</h1>
-    <h2 th:text="${product.name}"></h2>
+<main layout:fragment="content" class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/product}" class="text-decoration-none">Catalogue</a></li>
+            <li class="breadcrumb-item active" th:text="${product.name}"></li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <!-- Image -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm overflow-hidden">
+                <img th:src="${product.imageUrl}" alt="Product" class="card-img-top" style="height: 500px; object-fit: cover;">
+            </div>
+        </div>
+
+        <!-- Détails -->
+        <div class="col-md-6">
+            <!-- Catégorie -->
+            <span class="badge bg-info mb-3" th:text="${product.category.name}"></span>
+
+            <!-- Nom -->
+            <h1 class="display-5 mb-2" th:text="${product.name}"></h1>
+
+            <!-- Prix -->
+            <div class="mb-4">
+                <span class="h2 text-success" th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="card mb-4 border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title text-muted mb-2">📝 Description</h6>
+                    <p class="card-text" th:text="${product.description}"></p>
+                </div>
+            </div>
+
+            <!-- Infos produit -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <small class="text-muted d-block">ID Produit</small>
+                            <h6 class="mb-0" th:text="${product.id}"></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <small class="text-muted d-block">Catégorie ID</small>
+                            <h6 class="mb-0" th:text="${product.categoryId}"></h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-grid gap-2 d-sm-flex">
+                <a th:href="@{/product}" class="btn btn-outline-secondary btn-lg">
+                    ← Retour au catalogue
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
 </body>
 </html>
