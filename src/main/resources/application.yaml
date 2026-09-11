@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: TF_Java_2026_IntroSpringMVC
+server:
+  port: 8080
