@@ -22,18 +22,18 @@
     <!-- Filtres -->
     <div class="card mb-5 shadow-sm">
         <div class="card-body">
-            <form th:action="@{/product}" method="get" class="row g-3">
+            <form th:action="@{/product}" method="get" class="row g-3" th:object="${filter}">
                 <div class="col-md-3">
-                    <input type="text" name="name" class="form-control" placeholder="🔍 Rechercher par nom..." aria-label="Rechercher par nom">
+                    <input type="text" name="name" class="form-control" placeholder="🔍 Rechercher par nom..." aria-label="Rechercher par nom" th:field="*{name}">
                 </div>
                 <div class="col-md-2">
-                    <input type="number" name="minPrice" class="form-control" placeholder="Prix min (€)" aria-label="Prix minimum">
+                    <input type="number" name="minPrice" class="form-control" placeholder="Prix min (€)" aria-label="Prix minimum" th:field="*{minPrice}">
                 </div>
                 <div class="col-md-2">
-                    <input type="number" name="maxPrice" class="form-control" placeholder="Prix max (€)" aria-label="Prix maximum">
+                    <input type="number" name="maxPrice" class="form-control" placeholder="Prix max (€)" aria-label="Prix maximum" th:field="*{maxPrice}">
                 </div>
                 <div class="col-md-3">
-                    <select name="categoryId" class="form-select" aria-label="Sélectionner une catégorie">
+                    <select name="categoryId" class="form-select" aria-label="Sélectionner une catégorie" th:field="*{categoryId}">
                         <option value="" selected>📦 Toutes les catégories</option>
                         <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option>
                     </select>
