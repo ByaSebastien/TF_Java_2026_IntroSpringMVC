@@ -70,6 +70,14 @@
                 <a th:href="@{/product}" class="btn btn-outline-secondary btn-lg">
                     ← Retour au catalogue
                 </a>
+                <a th:href="@{/product/update/{id}(id=${product.id})}" class="btn btn-primary btn-lg">
+                    Modifier
+                </a>
+                <form th:action="@{/product/delete/{id}(id=${product.id})}" method="post">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        Supprimer
+                    </button>
+                </form>
             </div>
         </div>
     </div>

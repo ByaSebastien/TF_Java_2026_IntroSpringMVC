@@ -69,7 +69,7 @@ public class ProductController {
             Model model
     ) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("product", product);
             model.addAttribute("categories", FakeDb.categories);
             return "product/create";
@@ -84,6 +84,70 @@ public class ProductController {
         product.setCategory(category);
 
         FakeDb.products.add(product);
+
+        return "redirect:/product";
+    }
+
+    @GetMapping("/update/{id}")
+    public String update(
+            @PathVariable Long id,
+            Model model
+    ) {
+
+        Product product = FakeDb.products.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElseThrow();
+
+        model.addAttribute("productId", id);
+        model.addAttribute("product", product);
+        model.addAttribute("categories", FakeDb.categories);
+
+        return "product/update";
+    }
+
+    @PostMapping("/update/{id}")
+    public String update(
+            @PathVariable Long id,
+            @Valid @ModelAttribute(name = "product") Product product,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("productId", id);
+            model.addAttribute("product", product);
+            model.addAttribute("categories", FakeDb.categories);
+            return "product/update";
+        }
+
+        Product existing = FakeDb.products.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElseThrow();
+
+        existing.setName(product.getName());
+        existing.setDescription(product.getDescription());
+        existing.setPrice(product.getPrice());
+        existing.setImageUrl(product.getImageUrl());
+        if (!product.getCategoryId().equals(existing.getCategoryId())) {
+            Category category = FakeDb.categories.stream()
+                    .filter(c -> c.getId().equals(product.getCategoryId()))
+                    .findFirst().orElseThrow();
+            existing.setCategory(category);
+        }
+
+        return "redirect:/product";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String delete(
+            @PathVariable Long id
+    ) {
+        Product product = FakeDb.products.stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst().orElseThrow();
+
+        FakeDb.products.remove(product);
 
         return "redirect:/product";
     }
