@@ -38,7 +38,7 @@ public class Product {
             cascade = { CascadeType.MERGE }
     )
     @JoinColumn(
-            unique = true,
+            nullable = false,
             name = "category_id"
     )
     private Category category;
