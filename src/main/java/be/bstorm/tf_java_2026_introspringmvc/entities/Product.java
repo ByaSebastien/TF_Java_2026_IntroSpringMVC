@@ -42,4 +42,13 @@ public class Product {
             name = "category_id"
     )
     private Category category;
+
+    public Product(String name, String description, Double price, String imageUrl, Category category) {
+        this();
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.imageUrl = imageUrl;
+        this.category = category;
+    }
 }
