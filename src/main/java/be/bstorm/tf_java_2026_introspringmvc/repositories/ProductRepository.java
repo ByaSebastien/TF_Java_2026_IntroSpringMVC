@@ -12,6 +12,11 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    /**
+     * Super methode
+     * @param name
+     * @return la liste des produit contenant le nom
+     */
     @Query("select p from Product p where p.name ilike %:name%")
     Optional<Product> findProductByNameContaining(@Param("name") String name);
 }
