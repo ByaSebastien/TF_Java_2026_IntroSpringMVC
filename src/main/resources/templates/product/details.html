@@ -78,6 +78,11 @@
                         Supprimer
                     </button>
                 </form>
+                <form th:action="@{/cart/add/{productId}(productId=${product.id})}" method="post">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Ajouter au panier
+                    </button>
+                </form>
             </div>
         </div>
     </div>
