@@ -5,8 +5,8 @@ import lombok.*;
 
 @Entity
 @NoArgsConstructor @AllArgsConstructor
-@EqualsAndHashCode @ToString
-public class Category {
+@EqualsAndHashCode(callSuper = false) @ToString
+public class Category extends BaseEntity{
 
     @Getter
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

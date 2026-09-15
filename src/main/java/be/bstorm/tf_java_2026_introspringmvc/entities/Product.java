@@ -5,8 +5,8 @@ import lombok.*;
 
 @Entity
 @NoArgsConstructor @AllArgsConstructor
-@EqualsAndHashCode @ToString
-public class Product {
+@EqualsAndHashCode(callSuper = false, of = {"id","name","price"}) @ToString(of = {"id","name","price"})
+public class Product extends BaseEntity{
 
     @Getter
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,12 +43,32 @@ public class Product {
     )
     private Category category;
 
-    public Product(String name, String description, Double price, String imageUrl, Category category) {
-        this();
+    @Getter @Setter
+    @OneToOne(
+            fetch = FetchType.LAZY,
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE }
+    )
+    @JoinColumn(
+            name = "stock_id",
+            nullable = false
+    )
+    private Stock stock;
+
+    public Product(String name, String description, Double price, String imageUrl, Long categoryId) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imageUrl = imageUrl;
+        this.categoryId = categoryId;
+    }
+
+    public Product(String name, String description, Double price, String imageUrl, Category category) {
+        this(name, description, price, imageUrl, category.getId());
         this.category = category;
+    }
+
+    public Product(String name, String description, Double price, String imageUrl, Category category, Stock stock) {
+        this(name, description, price, imageUrl, category);
+        this.stock = stock;
     }
 }

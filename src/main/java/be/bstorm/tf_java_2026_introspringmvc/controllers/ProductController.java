@@ -3,6 +3,9 @@ package be.bstorm.tf_java_2026_introspringmvc.controllers;
 import be.bstorm.tf_java_2026_introspringmvc.entities.Category;
 import be.bstorm.tf_java_2026_introspringmvc.entities.Product;
 import be.bstorm.tf_java_2026_introspringmvc.models.ProductFilter;
+import be.bstorm.tf_java_2026_introspringmvc.models.category.CategoryDto;
+import be.bstorm.tf_java_2026_introspringmvc.models.product.ProductForm;
+import be.bstorm.tf_java_2026_introspringmvc.models.product.ProductIndexDto;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.CategoryRepository;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +32,15 @@ public class ProductController {
 
         List<Product> products = productRepository.findWithFilter(filter.name(),filter.minPrice(),filter.maxPrice(),filter.categoryId());
 
-        List<Category> categories = categoryRepository.findAll();
+        List<ProductIndexDto> dtos = products.stream()
+                        .map(p -> ProductIndexDto.fromEntity(p))
+                        .toList();
 
-        model.addAttribute("products", products);
+        List<CategoryDto> categories = categoryRepository.findAll().stream()
+                        .map(c -> CategoryDto.fromEntity(c))
+                        .toList();
+
+        model.addAttribute("products", dtos);
         model.addAttribute("categories", categories);
         model.addAttribute("filter", filter);
 
@@ -55,32 +64,45 @@ public class ProductController {
     public String create(
             Model model
     ) {
-        model.addAttribute("product", new Product());
-        List<Category> categories = categoryRepository.findAll();
+        model.addAttribute("product", new ProductForm());
+
+        List<CategoryDto> categories = categoryRepository.findAll().stream()
+                        .map(c -> CategoryDto.fromEntity(c))
+                        .toList();
+
         model.addAttribute("categories", categories);
+
         return "product/create";
     }
 
     @PostMapping("/create")
     public String create(
-            @ModelAttribute(name = "product") Product product,
+            @ModelAttribute(name = "product") ProductForm product,
             BindingResult bindingResult,
             Model model
     ) {
 
         if (bindingResult.hasErrors()) {
+
             model.addAttribute("product", product);
-            List<Category> categories = categoryRepository.findAll();
+
+            List<CategoryDto> categories = categoryRepository.findAll().stream()
+                            .map(c -> CategoryDto.fromEntity(c))
+                            .toList();
+
             model.addAttribute("categories", categories);
+
             return "product/create";
         }
 
-        Category category = categoryRepository.findById(product.getCategoryId())
+        Product newProduct = product.toEntity();
+
+        Category category = categoryRepository.findById(newProduct.getCategoryId())
                 .orElseThrow();
 
-        product.setCategory(category);
+        newProduct.setCategory(category);
 
-        productRepository.save(product);
+        productRepository.save(newProduct);
 
         return "redirect:/product";
     }

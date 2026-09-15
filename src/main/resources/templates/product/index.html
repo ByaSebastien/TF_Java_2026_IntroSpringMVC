@@ -56,30 +56,26 @@
             <div class="card h-100 shadow-sm hover-card">
                 <!-- Image -->
                 <div class="card-img-top overflow-hidden" style="height: 250px;">
-                    <img th:src="${p.imageUrl}" alt="Product" class="w-100 h-100 object-fit-cover">
+                    <img th:src="${p.imageUrl()}" alt="Product" class="w-100 h-100 object-fit-cover">
                 </div>
 
                 <div class="card-body d-flex flex-column">
                     <!-- Catégorie -->
-                    <span class="badge bg-info mb-2 align-self-start" th:text="${p.category.name}"></span>
+                    <span class="badge bg-info mb-2 align-self-start" th:text="${p.category().name()}"></span>
 
                     <!-- Nom -->
-                    <h5 class="card-title" th:text="${p.name}"></h5>
-
-                    <!-- Description -->
-                    <p class="card-text text-muted small"
-                       th:text="${#strings.length(p.description) > 100 ? #strings.substring(p.description, 0, 100) + '...' : p.description}"></p>
+                    <h5 class="card-title" th:text="${p.name()}"></h5>
 
                     <!-- Spacer -->
                     <div class="mt-auto">
                         <!-- Prix -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="h5 mb-0 text-success"
-                                  th:text="'€' + ${#numbers.formatDecimal(p.price, 1, 2)}"></span>
+                                  th:text="'€' + ${#numbers.formatDecimal(p.price(), 1, 2)}"></span>
                         </div>
 
                         <!-- Bouton -->
-                        <a th:href="@{/product/{id}(id=${p.id})}" class="btn btn-outline-primary w-100">
+                        <a th:href="@{/product/{id}(id=${p.id()})}" class="btn btn-outline-primary w-100">
                             Voir détails →
                         </a>
                     </div>
