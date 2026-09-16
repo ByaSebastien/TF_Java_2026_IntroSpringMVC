@@ -1,128 +1,234 @@
 # 📚 Introduction à Spring MVC avec PostgreSQL
 
-**Bienvenue !** Ce projet est un exemple pédagogique pour apprendre les concepts fondamentaux de **Spring MVC** et **JPA/Hibernate** avec une base de données PostgreSQL.
+**Bienvenue !** Ce projet est un exemple pédagogique complet pour apprendre les concepts fondamentaux de **Spring MVC**, **Spring Security**, **JPA/Hibernate** avancé, et **architecture en couches** avec une base de données PostgreSQL.
 
 ---
 
 ## 🎯 Objectifs d'apprentissage
 
 Ce projet vous enseignera :
-- ✅ **Entités JPA** : Comment modéliser des données avec des annotations Hibernate
-- ✅ **Relationnel** : Comment créer des relations entre tables (One-to-Many)
-- ✅ **Repositories** : Accéder à la BD via Spring Data JPA
 - ✅ **Controllers MVC** : Gérer les requêtes HTTP et répondre avec des vues
-- ✅ **Validation** : Valider les données côté application ET côté BD
+- ✅ **DTOs** : Séparer les données web des entités BD avec MapStruct
+- ✅ **Services** : Implémenter la logique métier et garantir la cohérence du code
+- ✅ **JPA/Hibernate** : Modéliser les données avec des relations complexes, héritage, et embeddables
+- ✅ **Repositories** : Accéder à la BD via Spring Data JPA
+- ✅ **Spring Security** : Authentification, autorisation, et protection des routes
 - ✅ **Thymeleaf** : Moteur de templates pour générer du HTML dynamique
+- ✅ **Validation** : Valider les données côté application ET côté BD
+- ✅ **Architecture en couches** : Séparer HTTP, logique métier, et accès données
+
+---
+
+## 📖 Documentation Pédagogique
+
+### 🎮 Controllers & Routes
+**Fichier** : `supports/01_Controllers.md`
+
+Apprenez comment gérer les requêtes HTTP, retourner des vues, et structurer vos routes avec Spring MVC.
+
+### 🗄️ JPA & Base de Données
+**Fichier** : `supports/02_JPA.md`
+
+Couverture complète de JPA :
+- Entités et annotations fondamentales
+- Relations (One-to-Many, Many-to-Many, etc.)
+- **Héritage et MappedSuperclass**
+- **Embeddable et objets composites**
+- Stratégies d'héritage (TABLE_PER_CLASS, SINGLE_TABLE, JOINED)
+- Clés composées avec @EmbeddedId
+- Exercices pratiques progressifs
+
+### 📦 DTOs & Mappers
+**Fichier** : `supports/03_DTO.md`
+
+Comprendre et implémenter le pattern DTO :
+- **Pourquoi** séparer les entités des données web
+- **3 cas d'usage** : Output DTOs, Input/Form DTOs, Query DTOs
+- Stratégies de mapping : static methods, dedicated Mappers, MapStruct
+- Automatiser le mapping avec **MapStruct**
+- Exemples concrets du projet
+
+### 🎯 Services & Logique Métier
+**Fichier** : `supports/04_Services.md`
+
+Apprendre l'importance de la couche Service :
+- **Pourquoi** une couche métier est essentielle
+- **Responsabilités** de chaque couche (Controller, Service, Repository)
+- **Architecture en couches** et dépendances correctes
+- **Cohérence du code** : utiliser des Services partout
+- Cas d'usage pratiques et patterns
+
+### 🔐 Spring Security
+**Fichier** : `supports/05_Security.md`
+
+Protéger votre application avec Spring Security :
+- Authentification vs Autorisation
+- **UserDetails, UserDetailsService, SecurityConfig** (setup une fois)
+- Flux complet de login/logout
+- États d'utilisateur : anonymous, authenticated, hasAuthority
+- **@PreAuthorize** et **@AuthenticationPrincipal** (utilisation partout)
+- Gestion des sessions et BCrypt
+
+---
+
+## 📝 Exercices Progressifs
+
+### Exercice 1 : Gestion du Panier (Cart)
+**Fichier** : `exercices/GestionPanier.md`
+
+Apprenez les bases :
+- Créer des entités avec relations
+- Gérer un panier d'achat pour un utilisateur
+- Ajouter/modifier/supprimer des articles
+- Afficher les totaux
+
+### Exercice 2 : Flux d'une Commande
+**Fichier** : `exercices/FluxCommande.md`
+
+Apprenez l'architecture complète :
+- Transformer un panier validé en commande
+- Implémenter des rôles (Magasinier, Chef de rayon)
+- Gestion des stocks avec mouvements
+- Flux multi-étape : validation → expédition → réception fournisseur
+- Création automatique de commandes fournisseur
 
 ---
 
 ## 🗄️ Architecture de la Base de Données
 
-### Diagramme Entité-Relation
+### Diagramme Entité-Relation Complet
 
 ```mermaid
 erDiagram
+    USER ||--o{ CART : has
+    USER ||--o{ ORDER : places
+    USER ||--o{ SUPPLIER_ORDER : manages
+    
     CATEGORY ||--o{ PRODUCT : contains
+    PRODUCT ||--o{ CART_LINE : "in carts"
+    PRODUCT ||--o{ ORDER_LINE : "in orders"
+    PRODUCT ||--o{ STOCK : "has"
+    PRODUCT ||--o{ STOCK_MOVEMENT : "tracks"
+    PRODUCT ||--o{ SUPPLIER_ORDER_LINE : "ordered"
+    
+    CART ||--o{ CART_LINE : contains
+    ORDER ||--o{ ORDER_LINE : contains
+    SUPPLIER_ORDER ||--o{ SUPPLIER_ORDER_LINE : contains
+    
+    STOCK ||--o{ STOCK_MOVEMENT : records
+    SUPPLIER_ORDER ||--o{ STOCK_MOVEMENT : "tracked by"
+    
+    USER {
+        bigserial id PK
+        varchar username UK
+        varchar password
+        varchar role "ADMIN, USER, WAREHOUSEMAN, DEPARTMENT_HEAD"
+    }
     
     CATEGORY {
-        bigserial id PK "Clé primaire auto-incrémentée"
-        varchar name UK "Unique, 2-50 caractères"
+        bigserial id PK
+        varchar name UK
     }
     
     PRODUCT {
-        bigserial id PK "Clé primaire auto-incrémentée"
-        varchar name UK "Unique, max 100 caractères"
-        text description "Description optionnelle"
-        double_precision price "Prix du produit"
-        varchar imageUrl "URL de l'image (max 500)"
-        bigint category_id FK "Référence à Category"
+        bigserial id PK
+        varchar name UK
+        text description
+        double_precision price
+        varchar imageUrl
+        bigint category_id FK
+    }
+    
+    STOCK {
+        bigserial id PK
+        bigint product_id FK
+        integer quantityAvailable
+        integer threshold
+    }
+    
+    CART {
+        bigserial id PK
+        bigint user_id FK
+    }
+    
+    CART_LINE {
+        bigserial id PK
+        bigint cart_id FK
+        bigint product_id FK
+        integer quantity
+    }
+    
+    ORDER {
+        bigserial id PK
+        bigint user_id FK
+        varchar status "PENDING, SHIPPED, CANCELLED"
+        timestamp createdAt
+    }
+    
+    ORDER_LINE {
+        bigserial id PK
+        bigint order_id FK
+        bigint product_id FK
+        integer quantity
+        double_precision priceAtTime
+    }
+    
+    SUPPLIER_ORDER {
+        bigserial id PK
+        bigint chef_rayon_id FK
+        varchar status "DRAFT, ORDERED, RECEIVED"
+        timestamp createdAt
+    }
+    
+    SUPPLIER_ORDER_LINE {
+        bigserial id PK
+        bigint supplier_order_id FK
+        bigint product_id FK
+        integer quantityOrdered
+    }
+    
+    STOCK_MOVEMENT {
+        bigserial id PK
+        bigint product_id FK
+        varchar type "OUTGOING, INCOMING"
+        integer quantity
+        bigint order_id FK
+        bigint supplier_order_id FK
+        timestamp movedAt
     }
 ```
 
-### Explication des concepts
+### Concepts Clés de l'Architecture
 
-#### **Entité Category**
-```java
-@Entity  // Cette classe représente une table en BD
-public class Category {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Clé primaire, auto-incrémentée
-    
-    @Column(
-        unique = true,           // UNIQUE en BD
-        nullable = false,        // NOT NULL en BD
-        columnDefinition = "VARCHAR(50) CHECK (LENGTH(name) >= 2 AND LENGTH(name) <= 50)"
-    )
-    private String name;         // Contrainte CHECK en BD
-}
-```
-
-**Vocabulaire :**
-- **@Entity** : Annotation qui dit à JPA de créer une table pour cette classe
-- **@Id** : Marque le champ comme clé primaire
-- **@GeneratedValue** : Auto-incrémente l'ID
-- **unique = true** : SQL → `UNIQUE` (pas de doublons)
-- **nullable = false** : SQL → `NOT NULL` (obligatoire)
-- **CHECK** : Contrainte BD qui valide les données avant insertion
-
----
-
-#### **Entité Product**
-```java
-@Entity
-public class Product {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(nullable = false, unique = true, length = 100)
-    private String name;
-    
-    @Column
-    private String description;
-    
-    @Column(nullable = false)
-    private Double price;
-    
-    // Relation One-to-Many avec Category
-    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
-    @JoinColumn(name = "category_id")
-    private Category category;
-}
-```
-
-**Concepts clés :**
-- **@ManyToOne** : Plusieurs produits peuvent appartenir à une seule catégorie
-- **@JoinColumn** : Crée la clé étrangère `category_id` en BD
-- **FetchType.EAGER** : Charge la catégorie automatiquement avec le produit
-- **CascadeType.MERGE** : Si on met à jour une catégorie, les produits liés sont aussi mis à jour
-
----
-
-## 🔄 Flux d'une requête Spring MVC
+#### **Couches de l'Application**
 
 ```mermaid
-sequenceDiagram
-    participant User as Utilisateur (Navigateur)
-    participant Controller as ProductController
-    participant Repo as ProductRepository
-    participant DB as PostgreSQL
-    participant View as Thymeleaf Template
-
-    User->>Controller: GET /product/{id}
-    Controller->>Repo: findById(id)
-    Repo->>DB: SELECT * FROM product WHERE id = ?
-    DB-->>Repo: Résultat
-    Repo-->>Controller: Product object
-    Controller->>View: model.addAttribute("product", product)
-    View-->>User: HTML généré avec les données
+graph TB
+    subgraph Web["🌐 Web Layer"]
+        Controller["Controller<br/>HTTP requests/responses"]
+    end
+    
+    subgraph Business["🎯 Business Logic Layer"]
+        Service["Service<br/>Métier & validations"]
+    end
+    
+    subgraph Data["💾 Data Access Layer"]
+        Repo["Repository<br/>CRUD & queries"]
+    end
+    
+    subgraph Database["🗄️ Database"]
+        DB["PostgreSQL"]
+    end
+    
+    Web -->|dépend de| Business
+    Business -->|dépend de| Data
+    Data -->|dépend de| Database
+    
+    style Web fill:#0277BD,color:#fff,stroke:#0277BD,stroke-width:2px
+    style Business fill:#6A1B9A,color:#fff,stroke:#6A1B9A,stroke-width:2px
+    style Data fill:#388E3C,color:#fff,stroke:#388E3C,stroke-width:2px
+    style Database fill:#C62828,color:#fff,stroke:#C62828,stroke-width:2px
 ```
-
-**Étapes :**
-1. **Request** : L'utilisateur clique sur un lien → requête HTTP
-2. **Controller** : `ProductController` reçoit la requête
-3. **Repository** : Demande les données à la BD
-4. **Database** : PostgreSQL cherche et retourne les données
-5. **Response** : Thymeleaf génère du HTML avec les données et renvoie au navigateur
 
 ---
 
@@ -131,53 +237,102 @@ sequenceDiagram
 ```
 src/main/java/be/bstorm/tf_java_2026_introspringmvc/
 ├── entities/              ← 🗂️ Les classes qui représentent les tables
+│   ├── BaseEntity.java           (MappedSuperclass)
+│   ├── User.java                 (implements UserDetails)
+│   ├── Address.java              (Embeddable)
 │   ├── Category.java
-│   └── Product.java
+│   ├── Product.java
+│   ├── Stock.java
+│   ├── Cart.java
+│   ├── CartLine.java             (Composite Key)
+│   ├── Order.java                (TABLE_PER_CLASS inheritance)
+│   ├── OrderLine.java
+│   ├── SupplierOrder.java
+│   ├── SupplierOrderLine.java
+│   └── StockMovement.java
 │
 ├── repositories/          ← 🔍 Accès à la base de données
+│   ├── UserRepository.java
 │   ├── CategoryRepository.java
-│   └── ProductRepository.java
+│   ├── ProductRepository.java
+│   ├── CartRepository.java
+│   ├── OrderRepository.java
+│   ├── SupplierOrderRepository.java
+│   └── StockMovementRepository.java
+│
+├── services/              ← 🎯 Logique métier
+│   ├── AuthService.java          (implements UserDetailsService)
+│   └── CartService.java
 │
 ├── controllers/           ← 🎮 Gestion des requêtes HTTP
 │   ├── HomeController.java
-│   └── ProductController.java
+│   ├── ProductController.java
+│   ├── CartController.java
+│   ├── OrderController.java
+│   └── SupplierOrderController.java
 │
-└── models/               ← 📋 Objets pour filtrer/valider
-    └── ProductFilter.java
+├── config/                ← ⚙️ Configuration
+│   └── SecurityConfig.java       (Spring Security)
+│
+├── dtos/                  ← 📦 Data Transfer Objects
+│   ├── ProductIndexDto.java      (Output)
+│   ├── ProductForm.java          (Input)
+│   ├── ProductFilter.java        (Query)
+│   └── CategoryDto.java
+│
+└── mappers/               ← 🔄 Conversion Entity ↔ DTO
+    └── ProductMapper.java        (ou MapStruct generated)
+
+supports/                 ← 📖 Documentation pédagogique
+├── 01_Controllers.md
+├── 02_JPA.md
+├── 03_DTO.md
+├── 04_Services.md
+└── 05_Security.md
+
+exercices/                ← 🏋️ Exercices progressifs
+├── GestionPanier.md
+└── FluxCommande.md
 ```
 
----
-
-## 🔗 Exemple de relation One-to-Many
+## 🔄 Flux d'une requête (Architecture complète)
 
 ```mermaid
-graph TB
-    subgraph "Base de Données"
-        Cat["Category<br/>id: 1<br/>name: Électronique"]
-        P1["Product<br/>id: 1<br/>name: Laptop<br/>category_id: 1"]
-        P2["Product<br/>id: 2<br/>name: Souris<br/>category_id: 1"]
-    end
-    
-    Cat -->|1| P1
-    Cat -->|1| P2
-    
-    style Cat fill:#e1f5ff
-    style P1 fill:#f3e5f5
-    style P2 fill:#f3e5f5
-```
+sequenceDiagram
+    participant User as 👤 Utilisateur
+    participant Browser as 🌐 Navigateur
+    participant Controller as 🎮 Controller
+    participant Service as 🎯 Service
+    participant Repo as 📊 Repository
+    participant DB as 🗄️ PostgreSQL
+    participant View as 🎨 Thymeleaf
 
-**En code Java :**
-```java
-Category electronics = categoryRepository.findById(1L).get();
-List<Product> productsInElectronics = productRepository.findAll()
-    .stream()
-    .filter(p -> p.getCategory().getId().equals(1L))
-    .toList();
+    User->>Browser: Clique sur le lien
+    Browser->>Controller: GET /product/1
+    
+    Note over Controller: ① Validation HTTP
+    Controller->>Service: getProduct(1)
+    
+    Note over Service: ② Logique métier
+    Service->>Repo: findById(1)
+    
+    Note over Repo: ③ Requête BD
+    Repo->>DB: SELECT * FROM product WHERE id = 1
+    DB-->>Repo: Product data
+    Repo-->>Service: Product object
+    
+    Note over Service: ④ Traitement métier
+    Service-->>Controller: Product
+    
+    Note over Controller: ⑤ Conversion DTO
+    Controller->>View: model.addAttribute("product", dto)
+    
+    Note over View: ⑥ Génération HTML
+    View-->>Browser: HTML
+    Browser-->>User: Affiche page
 ```
 
 ---
-
-## 🚀 Démarrer le projet
 
 ### Prérequis
 - Java 25+
@@ -205,39 +360,152 @@ Puis ouvrez : `http://localhost:8080`
 
 ---
 
-## 📚 Concepts expliqués
+## 🚀 Comment utiliser ce projet pédagogique
 
-### JPA (Java Persistence API)
-Abstraction pour accéder à une BD sans écrire de SQL brut. Hibernate est l'implémentation de JPA utilisée par Spring.
+### 📖 Parcours recommandé d'apprentissage
 
-### Repository Pattern
-Permet de dire : *"Donne-moi un objet sans que je sais comment tu l'accèdes"*
-```java
-@Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
-    // JpaRepository fournit findAll(), findById(), save(), delete()...
-    // C'est du CRUD automatique ! ✨
-}
+**Semaine 1-2 : Fondamentaux**
+1. Lire `supports/01_Controllers.md` et `supports/02_JPA.md` (sections fondamentales)
+2. Faire l'**Exercice 1** : `exercices/GestionPanier.md`
+3. Comprendre les relations JPA (One-to-Many, Many-to-Many)
+
+**Semaine 3 : Patterns avancés**
+4. Lire `supports/03_DTO.md` (conversion de données)
+5. Lire `supports/04_Services.md` (architecture en couches)
+6. Refactoriser le code du panier avec un Service
+
+**Semaine 4 : Sécurité et flux complet**
+7. Lire `supports/05_Security.md` (authentification/autorisation)
+8. Ajouter Spring Security au projet
+9. Faire l'**Exercice 2** : `exercices/FluxCommande.md` (architecture complète)
+
+**Semaine 5+ : Approfondissement JPA**
+10. Lire `supports/02_JPA.md` (sections avancées : MappedSuperclass, Embeddable, héritage)
+11. Implémenter les concepts avancés dans FluxCommande
+
+---
+
+## 📚 Concepts clés explained
+
+### 🏗️ Architecture en couches : Pourquoi ?
+
+**Sans Service** : Logique partout (Controller, Repository, Utils)
+- ❌ Code dupliqué (Web + API REST + Batch)
+- ❌ Difficile à tester
+- ❌ Incohérent et désorganisé
+
+**Avec Service** : Une seule place pour la logique métier
+- ✅ Réutilisable partout
+- ✅ Facile à tester
+- ✅ Clair et maintenable
+
+### 📦 DTO : Pourquoi séparer les données ?
+
+```
+Entity (BD) ← DTO → Client
 ```
 
-### MVC (Model-View-Controller)
-```
-Model     ← Données (entités, objets)
-View      ← Affichage (templates Thymeleaf)
-Controller ← Logique (traitement des requêtes)
-```
+**Sans DTO** : Retourner l'entité directement
+- ❌ Fuite de données sensibles
+- ❌ Couplage fort avec la BD
+- ❌ Consommation réseau inutile
 
-### Annotations importantes
+**Avec DTO** : Mapper les données
+- ✅ Contrôle total sur ce qu'on expose
+- ✅ Découplage web/BD
+- ✅ Optimisation des performances
+
+### 🔐 Spring Security : Authentification vs Autorisation
+
+| Concept | Signification | Exemple |
+|---------|---|---|
+| **Authentification** | Qui êtes-vous ? | Login avec username/password |
+| **Autorisation** | Qu'avez-vous le droit de faire ? | @PreAuthorize("hasAuthority('ADMIN')") |
+
+**Setup une fois** (au démarrage) :
+- Implémenter UserDetails
+- Implémenter UserDetailsService
+- Configurer SecurityConfig
+
+**Utiliser partout** (dans le code) :
+- `@PreAuthorize` sur les méthodes
+- `@AuthenticationPrincipal` pour l'utilisateur
+
+### 🗄️ JPA Avancé : Concepts modernes
+
+| Concept | Utilisation |
+|---------|-------------|
+| **@MappedSuperclass** | Partager des colonnes communes (id, createdAt) |
+| **@Embeddable** | Regrouper des colonnes liées (Address : rue, ville, codePostal) |
+| **TABLE_PER_CLASS** | Héritage : chaque classe a sa propre table |
+| **@EmbeddedId** | Clés composées (cart_id + product_id = id unique) |
+| **ManyToMany** | Relations bidirectionnelles (Product ↔ Category) |
+
+---
+
+## 📚 Annotations essentielles
+
+### Entités
 | Annotation | Rôle |
 |-----------|------|
 | `@Entity` | Classe = Table BD |
+| `@Table(name="...")` | Personnaliser le nom de la table |
 | `@Id` | Clé primaire |
 | `@GeneratedValue` | Auto-incrémente |
 | `@Column` | Configuration de colonne |
-| `@ManyToOne` | Relation N→1 |
+| `@Embeddable` | Classe = Colonne composite |
+| `@EmbeddedId` | Clé composite |
+| `@MappedSuperclass` | Classe abstraite pour héritage |
+
+### Relations
+| Annotation | Signification |
+|-----------|---|
+| `@ManyToOne` | N→1 (plusieurs produits, une catégorie) |
+| `@OneToMany` | 1→N (une catégorie, plusieurs produits) |
+| `@ManyToMany` | N↔N (produits ↔ catégories) |
 | `@JoinColumn` | Clé étrangère |
+| `@JoinTable` | Table d'association (Many-to-Many) |
+
+### Web & Sécurité
+| Annotation | Rôle |
+|-----------|------|
 | `@Controller` | Classe = Gestionnaire de requêtes |
+| `@Service` | Classe = Logique métier |
+| `@Repository` | Classe = Accès données |
 | `@RequestMapping` | Route HTTP |
 | `@GetMapping` / `@PostMapping` | GET / POST HTTP |
+| `@PreAuthorize` | Vérifier les permissions |
+| `@AuthenticationPrincipal` | Injecter l'utilisateur connecté |
+
+### DTO & Validation
+| Annotation | Rôle |
+|-----------|------|
+| `@Valid` | Valider un objet |
+| `@NotBlank` | Champ requis |
+| `@Min` / `@Max` | Contraintes numériques |
+| `@Email` | Format email |
+| `@Length` | Longueur de chaîne |
 
 ---
+
+## 🔗 Ressources supplémentaires
+
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
+- [Spring Security](https://spring.io/projects/spring-security)
+- [Thymeleaf](https://www.thymeleaf.org/)
+- [MapStruct](https://mapstruct.org/)
+
+---
+
+## 💡 Points clés à retenir
+
+✅ **Couches** : Séparer HTTP → Métier → Données (TOUJOURS)
+✅ **DTOs** : Mapper les entités pour le web (contrôle + sécurité)
+✅ **Services** : Une place unique pour la logique (réutilisabilité)
+✅ **Security** : Setup une fois, utiliser partout avec @PreAuthorize
+✅ **JPA** : Relations, héritage, embeddables pour modéliser correctement
+
+---
+
+**Bon apprentissage ! 🚀**
