@@ -20,15 +20,44 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Contrôleur pour gérer les opérations du panier utilisateur.
+ * Permet aux utilisateurs authentifiés d'ajouter des produits à leur panier.
+ * 
+ * Routes disponibles : /cart/...
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/cart")
 public class CartController {
 
+    /**
+     * Repository pour accéder aux utilisateurs en base de données.
+     * Injecté automatiquement par Spring.
+     */
     private final UserRepository userRepository;
+
+    /**
+     * Service métier pour gérer la logique du panier.
+     * Injecté automatiquement par Spring.
+     */
     private final CartService cartService;
 
-
+    /**
+     * Ajoute un produit au panier de l'utilisateur actuellement connecté.
+     * Accessible uniquement aux utilisateurs authentifiés.
+     * @AuthenticationPrincipal récupère automatiquement l'utilisateur connecté.
+     * 
+     * Flux :
+     * 1. Récupérer le produit à ajouter par son ID
+     * 2. Créer ou récupérer le panier de l'utilisateur
+     * 3. Ajouter le produit au panier (ou augmenter la quantité si déjà présent)
+     * 4. Rediriger vers la liste des produits
+     * 
+     * @param productId l'ID du produit à ajouter
+     * @param user l'utilisateur actuellement connecté
+     * @return redirection vers la page des produits (/product)
+     */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/add/{productId}")
     public String addToCart(
@@ -36,8 +65,10 @@ public class CartController {
             @AuthenticationPrincipal User user
     ){
 
+        // Ajouter le produit au panier via le service
         cartService.addToCart(user, productId);
 
+        // Rediriger vers la liste des produits
         return "redirect:/product";
     }
 }

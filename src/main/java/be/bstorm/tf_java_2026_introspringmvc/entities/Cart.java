@@ -3,12 +3,20 @@ package be.bstorm.tf_java_2026_introspringmvc.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Représente le panier d'un utilisateur.
+ * Le panier contient les produits que l'utilisateur souhaite acheter avant de passer la commande.
+ * Chaque utilisateur n'a qu'un seul panier actif.
+ */
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true) @ToString
-// Dans le cas de single table, on peut mettre @DiscriminatorValue("CART") pour avoir une colonne qui indique le type de l'entité
 public class Cart extends BaseOrder {
 
+    /**
+     * L'utilisateur propriétaire de ce panier.
+     * Relation "un-à-un" : chaque panier appartient à un seul utilisateur.
+     */
     @Getter @Setter
     @OneToOne(
             fetch = FetchType.LAZY,
