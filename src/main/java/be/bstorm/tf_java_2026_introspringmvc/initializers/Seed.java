@@ -4,11 +4,13 @@ import be.bstorm.tf_java_2026_introspringmvc.entities.Category;
 import be.bstorm.tf_java_2026_introspringmvc.entities.Product;
 import be.bstorm.tf_java_2026_introspringmvc.entities.Stock;
 import be.bstorm.tf_java_2026_introspringmvc.entities.User;
+import be.bstorm.tf_java_2026_introspringmvc.enums.UserRole;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.CategoryRepository;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.ProductRepository;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,6 +22,7 @@ public class Seed implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
@@ -67,11 +70,22 @@ public class Seed implements CommandLineRunner {
         }
 
         if(userRepository.count() == 0){
-            User user = new User(
+
+            String password = passwordEncoder.encode("Test1234=");
+
+            User admin = new User(
                     "Seb",
-                    "Test1234="
+                    password,
+                    UserRole.ADMIN
             );
-            userRepository.save(user);
+
+            User user = new User(
+                    "Jean",
+                    password,
+                    UserRole.USER
+            );
+
+            userRepository.saveAll(List.of(admin,user));
         }
 
     }

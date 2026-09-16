@@ -2,6 +2,7 @@
 <html lang="fr"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout/layout}">
 <head>
     <title>Détail produit</title>
@@ -70,17 +71,17 @@
                 <a th:href="@{/product}" class="btn btn-outline-secondary btn-lg">
                     ← Retour au catalogue
                 </a>
-                <a th:href="@{/product/update/{id}(id=${product.id})}" class="btn btn-primary btn-lg">
-                    Modifier
-                </a>
-                <form th:action="@{/product/delete/{id}(id=${product.id})}" method="post">
-                    <button type="submit" class="btn btn-danger btn-lg">
-                        Supprimer
-                    </button>
-                </form>
-                <form th:action="@{/cart/add/{productId}(productId=${product.id})}" method="post">
+                <form sec:authorize="isAuthenticated()" th:action="@{/cart/add/{productId}(productId=${product.id})}" method="post">
                     <button type="submit" class="btn btn-primary btn-lg">
                         Ajouter au panier
+                    </button>
+                </form>
+                <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/product/update/{id}(id=${product.id})}" class="btn btn-primary btn-lg">
+                    Modifier
+                </a>
+                <form sec:authorize="hasAuthority('ADMIN')" th:action="@{/product/delete/{id}(id=${product.id})}" method="post">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        Supprimer
                     </button>
                 </form>
             </div>

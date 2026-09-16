@@ -1,0 +1,56 @@
+<html lang="fr"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Login</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <form th:action="@{/login}" method="post" th:object="${form}" novalidate>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text"
+                                   id="username"
+                                   name="name"
+                                   th:field="*{username}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''"
+                                   placeholder="Jean Dupont">
+                            <div th:if="${#fields.hasErrors('username')}" class="invalid-feedback d-block">
+                                <span th:errors="*{username}"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   th:field="*{password}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                                   placeholder="******">
+                            <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback d-block">
+                                <span th:errors="*{password}"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Login
+                            </button>
+                            <a th:href="@{/}" class="btn btn-outline-secondary">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

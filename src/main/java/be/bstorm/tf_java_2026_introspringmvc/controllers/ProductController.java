@@ -9,6 +9,7 @@ import be.bstorm.tf_java_2026_introspringmvc.models.product.ProductIndexDto;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.CategoryRepository;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -60,6 +61,7 @@ public class ProductController {
         return "product/details";
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/create")
     public String create(
             Model model
@@ -75,6 +77,7 @@ public class ProductController {
         return "product/create";
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/create")
     public String create(
             @ModelAttribute(name = "product") ProductForm product,
@@ -107,6 +110,7 @@ public class ProductController {
         return "redirect:/product";
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/update/{id}")
     public String update(
             @PathVariable Long id,
@@ -124,6 +128,7 @@ public class ProductController {
         return "product/update";
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/update/{id}")
     public String update(
             @PathVariable Long id,
@@ -157,6 +162,7 @@ public class ProductController {
         return "redirect:/product";
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id
