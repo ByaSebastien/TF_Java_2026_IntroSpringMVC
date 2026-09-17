@@ -13,7 +13,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a th:href="@{/product}" class="text-decoration-none">Catalogue</a></li>
-            <li class="breadcrumb-item active" th:text="${product.name}"></li>
+            <li class="breadcrumb-item active" th:text="${product.name()}"></li>
         </ol>
     </nav>
 
@@ -21,28 +21,28 @@
         <!-- Image -->
         <div class="col-md-6">
             <div class="card border-0 shadow-sm overflow-hidden">
-                <img th:src="${product.imageUrl}" alt="Product" class="card-img-top" style="height: 500px; object-fit: cover;">
+                <img th:src="${product.imageUrl()}" alt="Product" class="card-img-top" style="height: 500px; object-fit: cover;">
             </div>
         </div>
 
         <!-- Détails -->
         <div class="col-md-6">
             <!-- Catégorie -->
-            <span class="badge bg-info mb-3" th:text="${product.category.name}"></span>
+            <span class="badge bg-info mb-3" th:text="${product.category().name()}"></span>
 
             <!-- Nom -->
-            <h1 class="display-5 mb-2" th:text="${product.name}"></h1>
+            <h1 class="display-5 mb-2" th:text="${product.name()}"></h1>
 
             <!-- Prix -->
             <div class="mb-4">
-                <span class="h2 text-success" th:text="'€' + ${#numbers.formatDecimal(product.price, 1, 2)}"></span>
+                <span class="h2 text-success" th:text="'€' + ${#numbers.formatDecimal(product.price(), 1, 2)}"></span>
             </div>
 
             <!-- Description -->
             <div class="card mb-4 border-0 bg-light">
                 <div class="card-body">
                     <h6 class="card-title text-muted mb-2">📝 Description</h6>
-                    <p class="card-text" th:text="${product.description}"></p>
+                    <p class="card-text" th:text="${product.description()}"></p>
                 </div>
             </div>
 
@@ -52,7 +52,7 @@
                     <div class="card border-0 bg-light">
                         <div class="card-body">
                             <small class="text-muted d-block">ID Produit</small>
-                            <h6 class="mb-0" th:text="${product.id}"></h6>
+                            <h6 class="mb-0" th:text="${product.id()}"></h6>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                     <div class="card border-0 bg-light">
                         <div class="card-body">
                             <small class="text-muted d-block">Catégorie ID</small>
-                            <h6 class="mb-0" th:text="${product.categoryId}"></h6>
+                            <h6 class="mb-0" th:text="${product.category().id()}"></h6>
                         </div>
                     </div>
                 </div>
@@ -71,15 +71,15 @@
                 <a th:href="@{/product}" class="btn btn-outline-secondary btn-lg">
                     ← Retour au catalogue
                 </a>
-                <form sec:authorize="isAuthenticated()" th:action="@{/cart/add/{productId}(productId=${product.id})}" method="post">
+                <form sec:authorize="isAuthenticated()" th:action="@{/cart/add/{productId}(productId=${product.id()})}" method="post">
                     <button type="submit" class="btn btn-primary btn-lg">
                         Ajouter au panier
                     </button>
                 </form>
-                <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/product/update/{id}(id=${product.id})}" class="btn btn-primary btn-lg">
+                <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/product/update/{id}(id=${product.id()})}" class="btn btn-primary btn-lg">
                     Modifier
                 </a>
-                <form sec:authorize="hasAuthority('ADMIN')" th:action="@{/product/delete/{id}(id=${product.id})}" method="post">
+                <form sec:authorize="hasAuthority('ADMIN')" th:action="@{/product/delete/{id}(id=${product.id()})}" method="post">
                     <button type="submit" class="btn btn-danger btn-lg">
                         Supprimer
                     </button>

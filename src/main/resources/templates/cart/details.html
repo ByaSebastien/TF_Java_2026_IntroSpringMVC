@@ -1,0 +1,57 @@
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+    <title>Détails du Panier</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <h1>Mon Panier</h1>
+
+    <div th:if="${cart.cartLines().isEmpty()}">
+        <p>Votre panier est vide.</p>
+    </div>
+
+    <div th:unless="${cart.cartLines().isEmpty()}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="line : ${cart.cartLines()}">
+                <td th:text="${line.product().name}"></td>
+                <td th:text="${#numbers.formatDecimal(line.product().price, 1, 2)}"></td>
+                <td>
+                    <form th:action="@{/cart/decrease/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-warning">−</button>
+                    </form>
+                    <span th:text="${line.quantity}"></span>
+                    <form th:action="@{/cart/increase/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">+</button>
+                    </form>
+                </td>
+                <td th:text="${#numbers.formatDecimal(line.totalPrice(), 1, 2)}"></td>
+                <td>
+                    <form th:action="@{/cart/remove/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="cart-total">
+            <h3>Total : <span th:text="${#numbers.formatDecimal(cart.totalPrice(), 1, 2)}"></span> €</h3>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

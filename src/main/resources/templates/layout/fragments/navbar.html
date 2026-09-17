@@ -4,32 +4,77 @@
         xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
 <body>
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
   <div class="container">
+    
+    <!-- Brand/Logo -->
+    <a class="navbar-brand fw-bold" th:href="@{/}">
+      <i class="bi bi-shop"></i> Shop
+    </a>
 
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-      <li class="nav-item"><a class="nav-link" th:href="@{/}">Accueil</a></li>
-      <li class="nav-item"><a class="nav-link" th:href="@{/about}">À propos</a></li>
-      <li class="nav-item"><a class="nav-link" th:href="@{/product}">Produits</a></li>
-    </ul>
-    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+    <!-- Navbar toggler for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <li class="nav-item" sec:authorize="isAnonymous()">
-        <a class="nav-link" th:href="@{/login}">Login</a>
-      </li>
+    <!-- Navbar content -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      
+      <!-- Left menu -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Accueil</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/product}">Produits</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/about}">À propos</a>
+        </li>
+      </ul>
 
-      <li class="nav-item" sec:authorize="isAuthenticated()">
-        <form th:action="@{/logout}" method="post" class="d-inline">
-          <button type="submit" class="btn btn-link nav-link" style="border: none; padding: 0;">
-            Logout
-          </button>
-        </form>
-      </li>
+      <!-- Right menu -->
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        
+        <!-- Cart button (only authenticated users) -->
+        <li class="nav-item" sec:authorize="isAuthenticated()">
+          <a class="nav-link position-relative" th:href="@{/cart}">
+            <i class="bi bi-cart-fill"></i> Panier
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                  th:if="${cartCount > 0}"
+                  th:text="${cartCount}">
+              0
+            </span>
+          </a>
+        </li>
 
-      <li class="nav-item" sec:authorize="isAuthenticated()">
-        <span class="ml-1" sec:authentication="name"></span>
-      </li>
-    </ul>
+        <!-- Login button (only anonymous users) -->
+        <li class="nav-item" sec:authorize="isAnonymous()">
+          <a class="nav-link" th:href="@{/login}">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </a>
+        </li>
+
+        <!-- User dropdown (only authenticated users) -->
+        <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+             data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i> <span sec:authentication="name"></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li>
+              <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="dropdown-item">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+              </form>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
   </div>
 </nav>
 </body>

@@ -4,6 +4,7 @@ import be.bstorm.tf_java_2026_introspringmvc.entities.Category;
 import be.bstorm.tf_java_2026_introspringmvc.entities.Product;
 import be.bstorm.tf_java_2026_introspringmvc.models.ProductFilter;
 import be.bstorm.tf_java_2026_introspringmvc.models.category.CategoryDto;
+import be.bstorm.tf_java_2026_introspringmvc.models.product.ProductDetailsDto;
 import be.bstorm.tf_java_2026_introspringmvc.models.product.ProductForm;
 import be.bstorm.tf_java_2026_introspringmvc.models.product.ProductIndexDto;
 import be.bstorm.tf_java_2026_introspringmvc.repositories.CategoryRepository;
@@ -93,8 +94,9 @@ public class ProductController {
             Model model
     ) {
         // Récupérer le produit (exception si inexistant)
-        Product product = productRepository.findById(id)
-                .orElseThrow();
+        // Convertir le produit en DTO pour la vue
+        ProductDetailsDto product = ProductDetailsDto.fromProduct(productRepository.findById(id)
+                .orElseThrow());
 
         model.addAttribute("product", product);
 
