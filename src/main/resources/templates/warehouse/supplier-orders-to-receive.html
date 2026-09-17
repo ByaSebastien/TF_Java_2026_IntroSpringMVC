@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>Réceptions fournisseur</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">📥 Réceptions fournisseur</h1>
+            <p class="text-muted">Livraisons en attente de réception (stocks à incrémenter)</p>
+        </div>
+    </div>
+
+    <!-- Message de succès -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>✓ Succès !</strong> <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Tableau des commandes fournisseur -->
+    <div class="table-responsive" th:if="${not #lists.isEmpty(supplierOrders)}">
+        <table class="table table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>#Commande</th>
+                <th>Date</th>
+                <th>Articles</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="so : ${supplierOrders}">
+                <td>
+                    <strong th:text="'#' + ${so.supplierOrderId()}"></strong>
+                </td>
+                <td th:text="${#temporals.format(so.createdAt(), 'dd/MM/yyyy')}"></td>
+                <td>
+                    <span th:text="${so.lines().size()} + ' article(s)'"></span>
+                </td>
+                <td>
+                    <span class="badge bg-primary" th:text="${so.status().name()}"></span>
+                </td>
+                <td>
+                    <a th:href="@{/warehouse/supplier-orders/{id}(id=${so.supplierOrderId()})}" class="btn btn-sm btn-info">
+                        Consulter
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Aucune réception -->
+    <div th:if="${#lists.isEmpty(supplierOrders)}" class="alert alert-info">
+        <p class="mb-0">✓ Aucune livraison en attente de réception</p>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Navigation -->
+    <div class="d-flex justify-content-between">
+        <a th:href="@{/warehouse/orders/pending}" class="btn btn-lg btn-outline-primary">
+            ← Commandes à valider
+        </a>
+    </div>
+
+</main>
+</body>
+
+</html>

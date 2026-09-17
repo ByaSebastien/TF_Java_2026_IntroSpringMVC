@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>Commandes fournisseur (Brouillons)</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">✏️ Commandes fournisseur</h1>
+            <p class="text-muted">Gérez vos commandes fournisseur (brouillons à éditer/soumettre)</p>
+        </div>
+    </div>
+
+    <!-- Message de succès -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>✓ Succès !</strong> <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Message d'info -->
+    <div th:if="${info}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>ℹ Info :</strong> <span th:text="${info}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>✗ Erreur !</strong> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Tableau des brouillons -->
+    <div class="table-responsive" th:if="${not #lists.isEmpty(supplierOrders)}">
+        <table class="table table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>#Commande</th>
+                <th>Date</th>
+                <th>Articles</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="so : ${supplierOrders}">
+                <td>
+                    <strong th:text="'#' + ${so.supplierOrderId()}"></strong>
+                </td>
+                <td th:text="${#temporals.format(so.createdAt(), 'dd/MM/yyyy')}"></td>
+                <td>
+                    <span th:text="${so.lines().size()} + ' article(s)'"></span>
+                </td>
+                <td>
+                    <span class="badge bg-warning text-dark" th:text="${so.status().name()}"></span>
+                </td>
+                <td>
+                    <a th:href="@{/supplier-orders/{id}(id=${so.supplierOrderId()})}" class="btn btn-sm btn-primary">
+                        Éditer
+                    </a>
+                    <form th:action="@{/supplier-orders/{id}/delete(id=${so.supplierOrderId()})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            Supprimer
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Aucun brouillon -->
+    <div th:if="${#lists.isEmpty(supplierOrders)}" class="alert alert-info">
+        <p class="mb-0">Aucune commande en brouillon. Créez-en une pour commencer.</p>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-center">
+        <form th:action="@{/supplier-orders}" method="post">
+            <button type="submit" class="btn btn-lg btn-success">
+                ➕ Créer une nouvelle commande fournisseur
+            </button>
+        </form>
+    </div>
+
+</main>
+</body>
+
+</html>

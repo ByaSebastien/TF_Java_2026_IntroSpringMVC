@@ -13,5 +13,15 @@ public enum UserRole {
     /**
      * Utilisateur normal : peut consulter les produits, ajouter au panier et passer des commandes.
      */
-    USER
+    USER,
+
+    /**
+     * Magasinier : valide les commandes clients (passage de PENDING à SHIPPED) et les réceptions fournisseur.
+     */
+    ROLE_WAREHOUSEMAN,
+
+    /**
+     * Chef de rayon : gère les commandes fournisseur (création, édition en DRAFT, validation ORDERED).
+     */
+    ROLE_DEPARTMENT_HEAD,
 }

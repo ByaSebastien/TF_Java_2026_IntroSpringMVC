@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>Détail de la commande fournisseur</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-1" th:text="'🏭 Commande fournisseur #' + ${supplierOrder.supplierOrderId()}"></h1>
+            <p class="text-muted" th:text="'Créée le ' + ${#temporals.format(supplierOrder.createdAt(), 'dd/MM/yyyy')}"></p>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/warehouse/supplier-orders/to-receive}" class="btn btn-outline-secondary">← Retour</a>
+        </div>
+    </div>
+
+    <!-- Statut -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Statut</h5>
+                    <p class="mb-0">
+                        <span th:switch="${supplierOrder.status().name()}">
+                            <span class="badge bg-info" style="font-size: 1.1em" th:case="'ORDERED'">
+                                📤 En cours d'expédition (magasinier)
+                            </span>
+                            <span class="badge bg-success" style="font-size: 1.1em" th:case="'RECEIVED'">
+                                ✓ Reçue (stocks mis à jour)
+                            </span>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles commandés -->
+    <div class="row mb-4">
+        <div class="col">
+            <h3>Articles à recevoir</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Produit</th>
+                        <th class="text-center">Quantité</th>
+                        <th class="text-end">Prix unitaire</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="line : ${supplierOrder.lines()}">
+                        <td>
+                            <strong th:text="${line.productName()}"></strong>
+                        </td>
+                        <td class="text-center" th:text="${line.quantity()}"></td>
+                        <td class="text-end" th:text="'€' + ${#numbers.formatDecimal(0, 1, 2)}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(supplierOrder.lines())}">
+                        <td colspan="3" class="text-center text-muted">Aucun article</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions : Formulaire de réception avec quantités reçues -->
+    <div th:if="${supplierOrder.status().name() == 'ORDERED'}" class="row mb-4">
+        <div class="col">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Réception de la commande</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Indiquez les quantités reçues pour chaque article</p>
+                    <form th:action="@{/warehouse/supplier-orders/{id}/receive(id=${supplierOrder.supplierOrderId()})}" method="post">
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Produit</th>
+                                    <th class="text-center">Commandé</th>
+                                    <th class="text-center">Reçu</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="line : ${supplierOrder.lines()}">
+                                    <td>
+                                        <strong th:text="${line.productName()}"></strong>
+                                    </td>
+                                    <td class="text-center" th:text="${line.quantity()}"></td>
+                                    <td class="text-center">
+                                        <input type="number" 
+                                               th:name="'quantities[' + ${line.productId()} + ']'"
+                                               th:value="${line.quantity()}"
+                                               min="0" 
+                                               th:max="${line.quantity()}"
+                                               class="form-control form-control-sm" 
+                                               required>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                ✓ Réceptionner et incrémenter les stocks
+                            </button>
+                            <a th:href="@{/warehouse/supplier-orders/to-receive}" class="btn btn-outline-secondary">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${supplierOrder.status().name() != 'ORDERED'}" class="alert alert-info">
+        <p class="mb-0">Cette livraison a déjà été traitée (statut : <strong th:text="${supplierOrder.status().name()}"></strong>)</p>
+    </div>
+
+</main>
+</body>
+
+</html>

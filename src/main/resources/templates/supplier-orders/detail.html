@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>Commande fournisseur</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-1" th:text="'🏭 Commande fournisseur #' + ${supplierOrder.supplierOrderId()}"></h1>
+            <p class="text-muted" th:text="'Créée le ' + ${#temporals.format(supplierOrder.createdAt(), 'dd/MM/yyyy à HH:mm')}"></p>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/supplier-orders/draft}" class="btn btn-outline-secondary">← Retour</a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>✓ Succès !</strong> <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>✗ Erreur !</strong> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Statut -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Statut</h5>
+                    <p class="mb-0">
+                        <span th:switch="${supplierOrder.status().name()}">
+                            <span class="badge bg-warning text-dark" style="font-size: 1.1em" th:case="'DRAFT'">
+                                ✏️ Brouillon (éditable)
+                            </span>
+                            <span class="badge bg-primary" style="font-size: 1.1em" th:case="'ORDERED'">
+                                📤 Commandée (immuable)
+                            </span>
+                            <span class="badge bg-success" style="font-size: 1.1em" th:case="'RECEIVED'">
+                                ✓ Reçue (stocks mis à jour)
+                            </span>
+                            <span class="badge bg-secondary" style="font-size: 1.1em" th:case="'CANCELLED'">
+                                ✗ Annulée
+                            </span>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles commandés + Édition -->
+    <div class="row mb-4">
+        <div class="col">
+            <div th:if="${isEditable}" class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">✏️ Édition des articles (Brouillon)</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/supplier-orders/{id}/update(id=${supplierOrder.supplierOrderId()})}" method="post" class="mb-4">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Produit</th>
+                                    <th class="text-center">Quantité</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="line : ${supplierOrder.lines()}">
+                                    <td>
+                                        <strong th:text="${line.productName()}"></strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" 
+                                               th:name="'quantities[' + ${line.productId()} + ']'"
+                                               th:value="${line.quantity()}"
+                                               min="1" 
+                                               class="form-control form-control-sm" 
+                                               style="max-width: 80px; margin: 0 auto;"
+                                               required>
+                                    </td>
+                                    <td>
+                                        <button type="submit" 
+                                                name="deleteProductId" 
+                                                th:value="${line.productId()}"
+                                                class="btn btn-sm btn-danger">
+                                            ❌ Supprimer
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(supplierOrder.lines())}">
+                                    <td colspan="3" class="text-center text-muted">Aucun article</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div th:if="${not #lists.isEmpty(supplierOrder.lines())}" class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                💾 Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Ajouter une ligne -->
+                    <hr>
+                    <h6 class="mt-4">➕ Ajouter un produit</h6>
+                    <form th:action="@{/supplier-orders/{id}/add-line(id=${supplierOrder.supplierOrderId()})}" method="post" class="row g-2">
+                        <div class="col-md-6">
+                            <select name="productId" class="form-select form-select-sm" required>
+                                <option value="">-- Sélectionner un produit --</option>
+                                <option th:each="product : ${allProducts}" 
+                                        th:value="${product.id()}"
+                                        th:text="${product.name()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" 
+                                   name="quantity" 
+                                   min="1" 
+                                   value="1"
+                                   class="form-control form-control-sm"
+                                   placeholder="Quantité"
+                                   required>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-success btn-sm w-100">
+                                ➕ Ajouter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Affichage si non éditable -->
+            <div th:if="${not isEditable}" class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Articles (lecture seule)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Produit</th>
+                                <th class="text-center">Quantité</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="line : ${supplierOrder.lines()}">
+                                <td>
+                                    <strong th:text="${line.productName()}"></strong>
+                                </td>
+                                <td class="text-center" th:text="${line.quantity()}"></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(supplierOrder.lines())}">
+                                <td colspan="2" class="text-center text-muted">Aucun article</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div th:if="${isEditable}" class="row">
+        <div class="col">
+            <form th:action="@{/supplier-orders/{id}/submit(id=${supplierOrder.supplierOrderId()})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-lg btn-success">
+                    📤 Passer la commande (DRAFT → ORDERED)
+                </button>
+            </form>
+            <a th:href="@{/supplier-orders/draft}" class="btn btn-lg btn-outline-secondary">
+                ← Retour sans soumettre
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${not isEditable}" class="alert alert-info">
+        <p class="mb-0">
+            Cette commande est <strong th:text="${supplierOrder.status().name()}"></strong> et ne peut plus être modifiée.
+        </p>
+    </div>
+
+</main>
+</body>
+
+</html>

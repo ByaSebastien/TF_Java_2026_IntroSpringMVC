@@ -52,4 +52,17 @@ public interface CartLineRepository extends JpaRepository<CartLine, CartLine.Car
     @Query("select cl from CartLine cl " +
            "where cl.cart.user.id = :userId and cl.product.id = :productId")
     Optional<CartLine> findByUserAndProduct(Long userId, Long productId);
+
+    /**
+     * Supprime toutes les lignes d'un panier spécifique (vide le panier).
+     * Utilisé lors de la création d'une commande depuis le panier.
+     * 
+     * Nécessite @Modifying car c'est un DELETE (mutation de données).
+     * 
+     * @param cartId l'ID du panier à vider
+     * @return le nombre de lignes supprimées
+     */
+    @Modifying
+    @Query("delete from CartLine cl where cl.cart.id = :cartId")
+    int deleteByCartId(Long cartId);
 }

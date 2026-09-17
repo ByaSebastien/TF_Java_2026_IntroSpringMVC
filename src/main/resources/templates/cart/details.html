@@ -7,48 +7,93 @@
 </head>
 <body>
 <main layout:fragment="content">
-    <h1>Mon Panier</h1>
-
-    <div th:if="${cart.cartLines().isEmpty()}">
-        <p>Votre panier est vide.</p>
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">🛒 Mon Panier</h1>
+            <p class="text-muted">Gérez vos articles avant de passer commande</p>
+        </div>
     </div>
 
-    <div th:unless="${cart.cartLines().isEmpty()}">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Produit</th>
-                <th>Prix unitaire</th>
-                <th>Quantité</th>
-                <th>Total</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="line : ${cart.cartLines()}">
-                <td th:text="${line.product().name}"></td>
-                <td th:text="${#numbers.formatDecimal(line.product().price, 1, 2)}"></td>
-                <td>
-                    <form th:action="@{/cart/decrease/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-warning">−</button>
-                    </form>
-                    <span th:text="${line.quantity}"></span>
-                    <form th:action="@{/cart/increase/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-success">+</button>
-                    </form>
-                </td>
-                <td th:text="${#numbers.formatDecimal(line.totalPrice(), 1, 2)}"></td>
-                <td>
-                    <form th:action="@{/cart/remove/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <!-- Message de succès -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>✓ Succès !</strong> <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
-        <div class="cart-total">
-            <h3>Total : <span th:text="${#numbers.formatDecimal(cart.totalPrice(), 1, 2)}"></span> €</h3>
+    <!-- Message d'erreur -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>✗ Erreur !</strong> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Panier vide -->
+    <div th:if="${cart.cartLines().isEmpty()}" class="alert alert-info">
+        <p class="mb-2">Votre panier est vide.</p>
+        <a th:href="@{/product}" class="btn btn-lg btn-primary">Continuer les achats →</a>
+    </div>
+
+    <!-- Panier avec articles -->
+    <div th:unless="${cart.cartLines().isEmpty()}">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>Produit</th>
+                    <th class="text-end">Prix unitaire</th>
+                    <th class="text-center">Quantité</th>
+                    <th class="text-end">Total</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="line : ${cart.cartLines()}">
+                    <td>
+                        <strong th:text="${line.product().name}"></strong>
+                    </td>
+                    <td class="text-end" th:text="'€' + ${#numbers.formatDecimal(line.product().price, 1, 2)}"></td>
+                    <td class="text-center">
+                        <form th:action="@{/cart/decrease/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-warning">−</button>
+                        </form>
+                        <strong th:text="${line.quantity}"></strong>
+                        <form th:action="@{/cart/increase/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success">+</button>
+                        </form>
+                    </td>
+                    <td class="text-end">
+                        <strong th:text="'€' + ${#numbers.formatDecimal(line.totalPrice(), 1, 2)}"></strong>
+                    </td>
+                    <td>
+                        <form th:action="@{/cart/remove/{productId}(productId=${line.product().id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">✗</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"><strong>Total du panier :</strong></td>
+                    <td class="text-end">
+                        <strong style="font-size: 1.3em" th:text="'€' + ${#numbers.formatDecimal(cart.totalPrice(), 1, 2)}"></strong>
+                    </td>
+                    <td></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Actions -->
+        <div class="row mt-4">
+            <div class="col">
+                <a th:href="@{/product}" class="btn btn-outline-secondary">← Continuer les achats</a>
+            </div>
+            <div class="col-auto">
+                <form th:action="@{/orders}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-lg btn-success">
+                        📦 Créer une commande
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

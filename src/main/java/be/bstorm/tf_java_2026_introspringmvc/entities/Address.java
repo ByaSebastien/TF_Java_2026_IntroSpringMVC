@@ -20,27 +20,27 @@ public class Address {
      * Nom de la rue (ex: "Rue de la Paix", "Avenue des Champs").
      */
     @Getter @Setter
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = true)
     private String street;
 
     /**
      * Numéro de la maison ou du bâtiment (ex: "123", "45A").
      */
     @Getter @Setter
-    @Column(length = 10, nullable = false)
+    @Column(length = 10, nullable = true)
     private String number;
 
     /**
      * Code postal de l'adresse (ex: "75001", "69000").
      */
     @Getter @Setter
-    @Column(length = 4, nullable = false)
+    @Column(length = 4, nullable = true)
     private String postalCode;
 
     /**
      * Ville de l'adresse (ex: "Paris", "Lyon", "Bruxelles").
      */
     @Getter @Setter
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = true)
     private String city;
 }

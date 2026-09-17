@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+    <title>Détail de la commande</title>
+</head>
+
+<body>
+<main layout:fragment="content">
+
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-1" th:text="'📦 Commande #' + ${order.orderId()}"></h1>
+            <p class="text-muted" th:text="'Passée le ' + ${#temporals.format(order.createdAt(), 'dd/MM/yyyy à HH:mm')}"></p>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/orders}" class="btn btn-outline-secondary">← Retour</a>
+        </div>
+    </div>
+
+    <!-- Statut -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Statut de la commande</h5>
+                    <p class="mb-0">
+                        <span th:switch="${order.status().name()}">
+                            <span class="badge bg-warning text-dark" style="font-size: 1.1em" th:case="'PENDING'">
+                                ⏳ En attente de validation
+                            </span>
+                            <span class="badge bg-success" style="font-size: 1.1em" th:case="'SHIPPED'">
+                                ✓ Expédiée
+                            </span>
+                            <span class="badge bg-secondary" style="font-size: 1.1em" th:case="'CANCELLED'">
+                                ✗ Annulée
+                            </span>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lignes de commande -->
+    <div class="row mb-4">
+        <div class="col">
+            <h3>Articles commandés</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Produit</th>
+                        <th class="text-center">Quantité</th>
+                        <th class="text-end">Prix unitaire</th>
+                        <th class="text-end">Sous-total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="line : ${order.lines()}">
+                        <td>
+                            <strong th:text="${line.productName()}"></strong>
+                        </td>
+                        <td class="text-center" th:text="${line.quantity()}"></td>
+                        <td class="text-end" th:text="'€' + ${#numbers.formatDecimal(line.unitPrice(), 1, 2)}"></td>
+                        <td class="text-end">
+                            <strong th:text="'€' + ${#numbers.formatDecimal(line.lineTotal(), 1, 2)}"></strong>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end">
+                            <strong>Montant total :</strong>
+                        </td>
+                        <td class="text-end">
+                            <strong style="font-size: 1.3em" th:text="'€' + ${#numbers.formatDecimal(order.totalAmount(), 1, 2)}"></strong>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations client -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Informations client</h5>
+                    <p>
+                        <strong>Utilisateur :</strong><br>
+                        <span th:text="${order.userName()}"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div th:if="${order.status().name() == 'PENDING'}" class="row">
+        <div class="col">
+            <form th:action="@{/orders/{id}/cancel(id=${order.orderId()})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous certain d\'annuler cette commande ?')">
+                    ✗ Annuler cette commande
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${order.status().name() != 'PENDING'}" class="alert alert-info">
+        <p class="mb-0">Cette commande ne peut plus être modifiée (statut : <strong th:text="${order.status().name()}"></strong>)</p>
+    </div>
+
+</main>
+</body>
+
+</html>
